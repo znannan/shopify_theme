@@ -1,0 +1,127 @@
+<header class="site-header" role="banner" data-section-id="{{ section.id }}" data-section-type="header-section">
+  <div class="wrapper">
+
+    <div class="grid--full">
+      <div class="grid-item large--one-half ologo">
+        {% if template.name == 'index' %}
+          <h1 class="header-logo" itemscope itemtype="http://schema.org/Organization">
+        {% else %}
+          <div class="h1 header-logo" itemscope itemtype="http://schema.org/Organization">
+        {% endif %}
+          {% if section.settings.logo %}
+          {% capture image_size %}{{ section.settings.logo_max_width | escape }}x{% endcapture %}
+            <a href="/" itemprop="url">
+              <img src="{{ section.settings.logo | img_url: image_size }}"
+                   srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+                   alt="{{ section.settings.logo.alt | default: shop.name }}"
+                   itemprop="logo">
+            </a>
+          {% else %}
+            <a href="/" itemprop="url">{{ shop.name }}</a>
+          {% endif %}
+        {% if template.name == 'index' %}
+          </h1>
+        {% else %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="grid-item large--one-half text-center large--text-right non-logo">
+        {% if section.settings.header_message != blank or shop.customer_accounts_enabled %}
+          <div class="site-header--text-links{% if section.settings.header_message == blank %} medium-down--hide{% endif %}">
+            {% if section.settings.header_message != blank %}
+              <div class="rte">
+                {{ section.settings.header_message }}
+            </div>
+            {% endif %}
+
+            {% if shop.customer_accounts_enabled %}
+              <span class="site-header--meta-links medium-down--hide">
+                <a class="account" href="https://health.olivesmall.com/account">My Account</a>
+                {% if customer %}
+                  {% capture first_name %}<a href="/account">{{ customer.first_name }}</a>{% endcapture %}
+                  {{ 'layout.customer.logged_in_as_html' | t: first_name: first_name }} &middot; {{ 'layout.customer.log_out' | t | customer_logout_link }}
+                {% else %}
+                  {{ 'layout.customer.sign_in' | t | customer_login_link }}
+                  <span class="site-header--spacer">{{ 'layout.customer.or' | t }}</span>
+                  {{ 'layout.customer.create_account' | t | customer_register_link }}
+                {% endif %}
+              </span>
+            {% endif %}
+          </div>
+
+          <br class="medium-down--hide">
+        {% endif %}
+
+        {% include 'search-bar' %}
+
+        <a href="/cart" class="header-cart-btn cart-toggle">
+          <!--<span class="icon icon-cart h-icon-cart"></span>-->
+          {{ 'layout.cart.cart' | t }} <span class="cart-count cart-badge--desktop {% if cart.item_count == 0 %}hidden-count{% endif %}">{{ cart.item_count }}</span>
+        </a>
+        {% include 'currency-picker' %}
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<nav class="nav-bar" role="navigation">
+  <div class="wrapper">
+    {% include 'search-bar' %}
+    {% include 'site-nav' %}
+  </div>
+</nav>
+
+<div id="mobileNavBar">
+  <div class="display-table-cell">
+    <a class="menu-toggle mobileNavBar-link"><span class="icon icon-hamburger"></span>{{ 'layout.navigation.mobile_menu' | t }}</a>
+  </div>
+  <div class="display-table-cell">
+    <a href="/cart" class="cart-toggle mobileNavBar-link">
+      <span class="icon icon-cart"></span>
+      {{ 'layout.cart.cart' | t }} <span class="cart-count {% if cart.item_count == 0 %}hidden-count{% endif %}">{{ cart.item_count }}</span>
+    </a>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Header",
+    "class": "header-section",
+    "settings": [
+      {
+        "type": "link_list",
+        "id": "menu",
+        "label": "Menu",
+        "default": "main-menu"
+      },
+      {
+        "type": "header",
+        "content": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Custom logo",
+        "info": "400px wide .png recommended"
+      },
+      {
+        "type": "text",
+        "id": "logo_max_width",
+        "label": "Custom logo width",
+        "default": "305"
+      },
+      {
+        "type": "header",
+        "content": "Message"
+      },
+      {
+        "type": "richtext",
+        "id": "header_message",
+        "label": "Text",
+        "info": "55 characters max"
+      }
+    ]
+  }
+{% endschema %}

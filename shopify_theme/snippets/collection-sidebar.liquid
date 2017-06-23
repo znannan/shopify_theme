@@ -1,0 +1,31 @@
+{% if template contains 'collection' and collection.tags.size > 0 %}
+    <!-- A recursive loop to catch and filter out the different tag categories -->
+
+    {% assign c = 0 %}
+    {% for t in collection.tags %}
+		{% capture cat %}{{ cat }}{% capture temp_cat %}{% if t contains '_' %}{% assign cat_grp = t | split: '_' %}{{ cat_grp.first }}{% endif %}{% endcapture %}{% unless cat contains temp_cat %}{% if t contains '_' %}{% assign new_cat_grp = t | split: '_' %}{{ new_cat_grp.first }}{% endif %}{% unless forloop.last %}+{% endunless %}{% assign c = c | plus: 1 %}{% endunless %}{% endcapture %}
+    {% endfor %}
+    <!-- create array of tag categories -->
+    {% assign cat_array = cat | split: '+' %}
+    <!-- loop through tag categories -->
+    {% for i in cat_array %}
+        <!-- ignore if tag category is empty -->
+        {% unless i == '' %}
+            <h5>{{ i }}</h5>
+            <ul class="nav">
+            <!-- loop through collection tags -->
+            {% for t in collection.tags %}
+                <!-- if tag contains the category title -->
+                {% if t contains i %}
+                    <!-- strip out tag category prefix and add/remove link for tag filtering -->
+                    {% if current_tags contains t %}
+                    <li>{{ t | remove: i | remove: '_' | append: '&nbsp;x' | link_to_remove_tag: t }}</li>
+                    {% else %}
+                    <li>{{ t | remove: i | remove: '_' | link_to_tag: t }}</li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% endunless %}
+    {% endfor %}
+{% endif %}
